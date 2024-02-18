@@ -7,6 +7,8 @@
 </head>
 <body>
     <h1>LED Parts Organizer</h1>
+    <h3>LED Control</h3>
+    <button id="offBut">All Off</button>
     <h3>Search Components</h3>
     <label for="nameSearchField">Name</label>
     <input id="nameSearchField" type="text">
@@ -34,7 +36,15 @@
     <input id="yAdd" type="number">
     <button id="addComponent">Add Component</button>
     <h3>List Components</h3>
-    <button>List Components</button>
+    <button id="listBut">List Components</button>
+    <table id="listTable">
+        <tr>
+            <th>Container Id</th>
+            <th>Name</th>
+            <th>Qty</th>
+            <th>Illuminate</th>
+        </tr>
+    </table>
 </body>
 <script src="index.js"></script>
 </html>

@@ -55,6 +55,7 @@ public:
     int search(String name, Vial foundVials[], int maxSearchSize);
     uint16_t list(Vial vialsArr[], uint16_t arrSize);
     void illuminate(uint16_t cid);
+    void allOff();
 };
 
 Grid::Grid()
@@ -225,6 +226,11 @@ void Grid::illuminate(uint16_t cid) {
             Serial.println(i);
         }
     }
+    pixels->show();
+}
+
+void Grid::allOff() {
+    pixels->clear();
     pixels->show();
 }
 

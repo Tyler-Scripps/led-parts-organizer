@@ -150,7 +150,20 @@ void handleAdd() {
 }
 
 void handleList(){
-
+    Vial foundVials[256];
+    int numFound = grid.list(foundVials, 256);
+    Serial.print("Listing ");
+    Serial.println(numFound);
+    String returnJSON = "{\"results\": [";
+    for (uint16_t i = 0; i < numFound; i++)
+    {
+        returnJSON += foundVials[i].toJson();
+        returnJSON += ",";
+    }
+    returnJSON.remove(returnJSON.length() - 1);
+    returnJSON += "]}";
+    server.send(200, "application/json", returnJSON);
+    return;
 }
 
 void handleIlluminate() {
@@ -163,6 +176,12 @@ void handleIlluminate() {
     }
     grid.illuminate(containerId.toInt());
     server.send(200, "text/plain", "Illuminated: " + containerId);
+}
+
+void handleAllOff() {
+    grid.allOff();
+    Serial.println("Turned off all leds");
+    server.send(200, "text/plain", "Turned off leds");
 }
 
 void setup(void) {
@@ -223,6 +242,7 @@ void setup(void) {
     server.on("/add", HTTP_POST, handleAdd);
     server.on("/list", HTTP_GET, handleList);
     server.on("/illuminate", HTTP_POST, handleIlluminate);
+    server.on("/alloff", HTTP_POST, handleAllOff);
 
     server.serveStatic("/", LittleFS, "/");
 
