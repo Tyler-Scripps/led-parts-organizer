@@ -21,6 +21,100 @@ Grid grid;
 bool ledState = false;
 unsigned long lastLed = 0;
 
+bool writeDataFile(String message){
+    Serial.printf("Writing file: /data.csv\r\n");
+
+    File file = LittleFS.open("/data.csv", FILE_WRITE);
+    if(!file){
+        Serial.println("- failed to open file for writing");
+        return false;
+    }
+    if(file.print(message)){
+        Serial.println("- file written");
+    } else {
+        Serial.println("- write failed");
+        return false;
+    }
+    file.close();
+    return true;
+}
+
+bool readDataFile() {
+    Serial.printf("Reading file: /data.csv\r\n");
+
+    File file = LittleFS.open("/data.csv");
+    if(!file || file.isDirectory()){
+        Serial.println("- failed to open file for reading");
+        return false;
+    }
+
+    String rawStr = file.readString();
+    file.close();
+
+    int startIndex = 0;
+    int endIndex = 0;
+    int lineCount = 0;
+  
+    while (endIndex != -1) {
+        // Find the index of the next newline character
+        endIndex = rawStr.indexOf('\n', startIndex);
+
+        // Extract the substring between the current and next newline characters
+        String substring;
+        if (endIndex != -1) {
+            substring = rawStr.substring(startIndex, endIndex);
+        } else {
+            substring = rawStr.substring(startIndex);
+        }
+
+        if (lineCount > 0 && substring.length() > 0)
+        {
+            Serial.print("Adding: ");
+            Serial.println(substring);
+
+            char line[substring.length()+1];
+            substring.toCharArray(line, substring.length()+1);
+            // Serial.println(line);
+
+            char *values[4]; // an array of pointers to the pieces of the above array after strtok()
+            char *ptr = NULL;
+
+            byte index = 0;
+            ptr = strtok(line, ",");  // delimiters space and comma
+            while (ptr != NULL)
+            {
+                values[index] = ptr;
+                index++;
+                ptr = strtok(NULL, ",");
+            }
+
+            int cid = atoi(values[0]);
+            String name = values[1];
+            int qty = atoi(values[2]);
+            int ledNum = atoi(values[3]);
+
+            // Serial.print("cid: ");
+            // Serial.print(cid);
+            // Serial.print(", name:");
+            // Serial.print(name);
+            // Serial.print(", qty:");
+            // Serial.print(qty);
+            // Serial.print(", ledNum:");
+            // Serial.println(ledNum);
+
+            //add part with values retrieved from line
+            bool success = grid.addNewPart(ledNum, name, qty, cid);
+            Serial.print("Successfully added: ");
+            Serial.println(success);
+        }
+
+        // Update the start index for the next iteration
+        startIndex = endIndex + 1;
+        lineCount++;
+    }
+    return true;
+}
+
 // This function is called when the WebServer was requested to list all existing files in the filesystem.
 // a JSON array with file information is returned.
 void handleListFiles() {
@@ -147,6 +241,7 @@ void handleAdd() {
     server.send(200, "text/plain", "Added part: " + newName);
     Serial.print("added: ");
     Serial.println(newName);
+    bool writeSuccess = writeDataFile(grid.toCSV());
 }
 
 void handleList(){
@@ -228,8 +323,10 @@ void setup(void) {
         Serial.println("MDNS responder started");
     }
 
-    grid.begin(40, 256);
+    grid.begin(40, 100);
     Serial.println("Grid begun");
+    readDataFile();
+    Serial.println("loaded data from file");
 
 
     // register some REST services

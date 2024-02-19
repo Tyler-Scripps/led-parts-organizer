@@ -50,12 +50,14 @@ public:
     void begin(int pin, int numPixels);
 
     bool addNewPart(int x, int y, String name, int qty);
+    bool addNewPart(int ledNum, String name, int qty, int containerId);
     int XYtoLED(int x, int y);
     Vial search(int id);
     int search(String name, Vial foundVials[], int maxSearchSize);
     uint16_t list(Vial vialsArr[], uint16_t arrSize);
     void illuminate(uint16_t cid);
     void allOff();
+    String toCSV();
 };
 
 Grid::Grid()
@@ -125,6 +127,30 @@ bool Grid::addNewPart(int x, int y, String name, int qty) {
     newVial.qty = qty;
     newVial.name = name;
     vials[XYtoLED(x, y)] = newVial;
+    return true;
+}
+
+bool Grid::addNewPart(int ledNum, String name, int qty, int containerId) {
+    if (ledNum > maxVials - 1)
+    {
+        return false;
+    }
+
+    if (containerId < 0)
+    {
+        return false;
+    }
+    
+    if (search(containerId).name != "not found")
+    {
+        return false;
+    }
+    
+    Vial newVial;
+    newVial.containerId = containerId;
+    newVial.qty = qty;
+    newVial.name = name;
+    vials[ledNum] = newVial;
     return true;
 }
 
@@ -232,6 +258,18 @@ void Grid::illuminate(uint16_t cid) {
 void Grid::allOff() {
     pixels->clear();
     pixels->show();
+}
+
+String Grid::toCSV() {
+    String csvString = "containerId,Name,Qty,ledNum\n";
+    for (uint16_t i = 0; i < maxVials; i++)
+    {
+        if (vials[i].containerId >= 0)
+        {
+            csvString = csvString + String(vials[i].containerId) + ',' + vials[i].name + ',' + vials[i].qty + ',' + i + '\n';
+        }
+    }
+    return csvString;
 }
 
 #endif //GRID_H

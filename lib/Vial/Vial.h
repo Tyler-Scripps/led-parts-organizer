@@ -14,7 +14,7 @@ struct Vial
         jsonString += "\"name\":\"" + name + "\"";
         jsonString += "}";
         return jsonString;
-    }
+    };
 };
 
 #endif //VIAL_H
