@@ -46,6 +46,16 @@ document.getElementById("nameSearch").addEventListener("click", function() {
                     fetch(urlWithQueries, {method: "POST"})
                 });
                 illCell.appendChild(illButton);
+
+                var delCell = row.insertCell(4);
+                var delButton = document.createElement("button");
+                delButton.textContent = "Delete";
+                delButton.addEventListener("click", function() {
+                    console.log("deleting:", element.containerId);
+                    let urlWithQueries = "/delete?cid=" + element.containerId;
+                    fetch(urlWithQueries, {method: "POST"})
+                });
+                delCell.appendChild(delButton);
             });
         })
         .catch(error => {
@@ -125,6 +135,16 @@ document.getElementById("listBut").addEventListener("click", function() {
                     fetch(urlWithQueries, {method: "POST"})
                 });
                 illCell.appendChild(illButton);
+
+                var delCell = row.insertCell(4);
+                var delButton = document.createElement("button");
+                delButton.textContent = "Delete";
+                delButton.addEventListener("click", function() {
+                    console.log("deleting:", element.containerId);
+                    let urlWithQueries = "/delete?cid=" + element.containerId;
+                    fetch(urlWithQueries, {method: "POST"})
+                });
+                delCell.appendChild(delButton);
             });
         })
         .catch(error => {

@@ -21,7 +21,7 @@ Grid grid;
 bool ledState = false;
 unsigned long lastLed = 0;
 
-bool writeDataFile(String message){
+bool writeDataFile(){
     Serial.printf("Writing file: /data.csv\r\n");
 
     File file = LittleFS.open("/data.csv", FILE_WRITE);
@@ -29,7 +29,7 @@ bool writeDataFile(String message){
         Serial.println("- failed to open file for writing");
         return false;
     }
-    if(file.print(message)){
+    if(file.print(grid.toCSV())){
         Serial.println("- file written");
     } else {
         Serial.println("- write failed");
@@ -241,7 +241,7 @@ void handleAdd() {
     server.send(200, "text/plain", "Added part: " + newName);
     Serial.print("added: ");
     Serial.println(newName);
-    bool writeSuccess = writeDataFile(grid.toCSV());
+    bool writeSuccess = writeDataFile();
 }
 
 void handleList(){
@@ -277,6 +277,28 @@ void handleAllOff() {
     grid.allOff();
     Serial.println("Turned off all leds");
     server.send(200, "text/plain", "Turned off leds");
+}
+
+void handleDelete() {
+    String partString = server.arg("cid");
+    if (partString.length() == 0)
+    {
+        server.send(400, "text/plain", "no cid found");
+        return;
+    }
+    
+    Serial.print("deleting: ");
+    Serial.println(partString);
+
+    bool partDeleted = grid.deletePart(partString.toInt());
+    if (partDeleted)
+    {
+        server.send(200, "text/plain", "deleted part");
+        writeDataFile();
+    } else {
+        server.send(200, "text/plain", "part not deleted");
+    }
+    
 }
 
 void setup(void) {
@@ -340,6 +362,7 @@ void setup(void) {
     server.on("/list", HTTP_GET, handleList);
     server.on("/illuminate", HTTP_POST, handleIlluminate);
     server.on("/alloff", HTTP_POST, handleAllOff);
+    server.on("/delete", HTTP_POST, handleDelete);
 
     server.serveStatic("/", LittleFS, "/");
 

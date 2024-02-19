@@ -58,6 +58,7 @@ public:
     void illuminate(uint16_t cid);
     void allOff();
     String toCSV();
+    bool deletePart(int containerId);
 };
 
 Grid::Grid()
@@ -270,6 +271,20 @@ String Grid::toCSV() {
         }
     }
     return csvString;
+}
+
+bool Grid::deletePart(int containerId) {
+    for (uint16_t i = 0; i < maxVials; i++)
+    {
+        if (vials[i].containerId == containerId)
+        {
+            vials[i].name = "";
+            vials[i].qty = -1;
+            vials[i].containerId = -1;
+            return true;
+        }
+    }
+    return false;
 }
 
 #endif //GRID_H
