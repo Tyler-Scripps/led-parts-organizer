@@ -345,7 +345,7 @@ void setup(void) {
         Serial.println("MDNS responder started");
     }
 
-    grid.begin(40, 100);
+    grid.begin(16, 100);
     Serial.println("Grid begun");
     readDataFile();
     Serial.println("loaded data from file");
