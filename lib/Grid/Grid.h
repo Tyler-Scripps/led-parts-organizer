@@ -248,7 +248,7 @@ void Grid::illuminate(uint16_t cid) {
     {
         if (vials[i].containerId == cid)
         {
-            pixels->setPixelColor(i,pixels->Color(20,20,20));
+            pixels->setPixelColor(i,pixels->Color(40,40,40));
             Serial.print("Illuminating pixel: ");
             Serial.println(i);
         }
