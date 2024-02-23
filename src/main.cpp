@@ -324,15 +324,16 @@ void setup(void) {
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
-    Serial.println("");
+    Serial.println("connecting");
 
     // Wait for connection
     while (WiFi.status() != WL_CONNECTED) {
         digitalWrite(LED_BUILTIN, LOW);
-        delay(250);
+        delay(375);
         digitalWrite(LED_BUILTIN, HIGH);
-        delay(250);
-        Serial.print(".");
+        delay(125);
+        Serial.println(".");
+        // Serial.flush();
         
     }
     Serial.println("");
