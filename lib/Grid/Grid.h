@@ -55,6 +55,7 @@ public:
     bool addNewPart(int ledNum, String name, int qty, int containerId);
     int XYtoLED(int x, int y);
     Vial search(int id);
+    Vial search(int x, int y);
     int search(String name, Vial foundVials[], int maxSearchSize);
     uint16_t list(Vial vialsArr[], uint16_t arrSize);
     void illuminate(uint16_t cid);
@@ -63,6 +64,7 @@ public:
     bool deletePart(int containerId);
     void testPixels();
     bool setQuantity(int cid, int newQty);
+    bool move(int cid, int newX, int newY);     // IMPLEMENT
 };
 
 Grid::Grid()
@@ -106,7 +108,7 @@ void Grid::begin(int pin, int numVials)
  * @return false bad inputs found or no free container id
  */
 bool Grid::addNewPart(int x, int y, String name, int qty) {
-    if (x > 15 || y > 15 || name.length() == 0)
+    if (x > width - 1 || y > height - 1 || name.length() == 0)
     {
         return false;
     }
@@ -122,6 +124,11 @@ bool Grid::addNewPart(int x, int y, String name, int qty) {
     }
     
     if (containerId == -1)
+    {
+        return false;
+    }
+    
+    if (vials[XYtoLED(x, y)].containerId < 0)
     {
         return false;
     }
@@ -198,6 +205,10 @@ Vial Grid::search(int id) {
     retVial.qty = -1;
     retVial.name = "not found";
     return retVial;
+}
+
+Vial Grid::search(int x, int y) {
+    return vials[XYtoLED(x, y)];
 }
 
 int Grid::search(String name, Vial foundVials[], int maxSearchSize) {
@@ -313,6 +324,17 @@ bool Grid::setQuantity(int cid, int newQty) {
         }
     }
     return false;
+}
+
+bool Grid::move(int cid, int newX, int newY) {
+    if (vials[XYtoLED(newX, newY)].containerId >= 0)
+    {
+        return false;
+    }
+    Vial tempVial = search(cid);
+    deletePart(cid);
+    vials[XYtoLED(newX, newY)] = tempVial;
+    return true;
 }
 
 #endif //GRID_H
