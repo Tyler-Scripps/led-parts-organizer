@@ -14,61 +14,10 @@ document.getElementById("nameSearch").addEventListener("click", function() {
             console.log("found:");
             console.log(data.results);
 
-            var table = document.getElementById("searchTable");
-
-            var rows = table.getElementsByTagName("tr");
-            // Start from the end to avoid issues with indexes changing as rows are removed
-            for (var i = rows.length - 1; i > 0; i--) {
-                // Remove all rows except the first one (header)
-                table.deleteRow(i);
-            }
-
-            var tbody = table.querySelector("tbody");
+            clearTable();
 
             data.results.forEach(element => {
-                let row = tbody.insertRow();
-
-                var idCell = row.insertCell(0);
-                idCell.textContent = element.containerId;
-
-                var nameCell = row.insertCell(1);
-                nameCell.textContent = element.name;
-
-                var qtyCell = row.insertCell(2);
-                var qtyInput = document.createElement("input");
-                qtyInput.type = "number";
-                qtyInput.value = element.qty;
-                qtyInput.addEventListener("input", function(event) {
-                    let urlWithQueries = "/setqty?cid=" + element.containerId + "&qty=" + event.target.value;
-                    fetch(urlWithQueries, {method: "POST"})
-                        .then(response => {
-                            console.log(response.body);
-                        })
-                        .catch(error => {
-                            console.log("error setting qty:", error);
-                        });
-                });
-                qtyCell.appendChild(qtyInput);
-
-                var illCell = row.insertCell(3);
-                var illButton = document.createElement("button");
-                illButton.textContent = "Illuminate";
-                illButton.addEventListener("click", function() {
-                    console.log("illuminating:", element.containerId);
-                    let urlWithQueries = "/illuminate?cid=" + element.containerId;
-                    fetch(urlWithQueries, {method: "POST"})
-                });
-                illCell.appendChild(illButton);
-
-                var delCell = row.insertCell(4);
-                var delButton = document.createElement("button");
-                delButton.textContent = "Delete";
-                delButton.addEventListener("click", function() {
-                    console.log("deleting:", element.containerId);
-                    let urlWithQueries = "/delete?cid=" + element.containerId;
-                    fetch(urlWithQueries, {method: "POST"})
-                });
-                delCell.appendChild(delButton);
+                addPartToTable(element.containerId, element.name, element.qty);
             });
         })
         .catch(error => {
@@ -116,61 +65,10 @@ document.getElementById("listBut").addEventListener("click", function() {
             console.log("got list:");
             console.log(data.results);
 
-            var table = document.getElementById("listTable");
-
-            var rows = table.getElementsByTagName("tr");
-            // Start from the end to avoid issues with indexes changing as rows are removed
-            for (var i = rows.length - 1; i > 0; i--) {
-                // Remove all rows except the first one (header)
-                table.deleteRow(i);
-            }
-
-            var tbody = table.querySelector("tbody");
+            clearTable();
 
             data.results.forEach(element => {
-                let row = tbody.insertRow();
-
-                var idCell = row.insertCell(0);
-                idCell.textContent = element.containerId;
-
-                var nameCell = row.insertCell(1);
-                nameCell.textContent = element.name;
-
-                var qtyCell = row.insertCell(2);
-                var qtyInput = document.createElement("input");
-                qtyInput.type = "number";
-                qtyInput.value = element.qty;
-                qtyInput.addEventListener("input", function(event) {
-                    let urlWithQueries = "/setqty?cid=" + element.containerId + "&qty=" + event.target.value;
-                    fetch(urlWithQueries, {method: "POST"})
-                        .then(response => {
-                            console.log(response.body);
-                        })
-                        .catch(error => {
-                            console.log("error setting qty:", error);
-                        });
-                });
-                qtyCell.appendChild(qtyInput);
-
-                var illCell = row.insertCell(3);
-                var illButton = document.createElement("button");
-                illButton.textContent = "Illuminate";
-                illButton.addEventListener("click", function() {
-                    console.log("illuminating:", element.containerId);
-                    let urlWithQueries = "/illuminate?cid=" + element.containerId;
-                    fetch(urlWithQueries, {method: "POST"})
-                });
-                illCell.appendChild(illButton);
-
-                var delCell = row.insertCell(4);
-                var delButton = document.createElement("button");
-                delButton.textContent = "Delete";
-                delButton.addEventListener("click", function() {
-                    console.log("deleting:", element.containerId);
-                    let urlWithQueries = "/delete?cid=" + element.containerId;
-                    fetch(urlWithQueries, {method: "POST"});
-                });
-                delCell.appendChild(delButton);
+                addPartToTable(element.containerId, element.name, element.qty);
             });
         })
         .catch(error => {
@@ -200,3 +98,63 @@ document.getElementById("csvButton").addEventListener("click", function() {
         console.log("wrong number of inputs:", input.files.length);
     }
 });
+
+function clearTable() {
+    var table = document.getElementById("resultsTable");
+
+    var rows = table.getElementsByTagName("tr");
+    // Start from the end to avoid issues with indexes changing as rows are removed
+    for (var i = rows.length - 1; i > 0; i--) {
+        // Remove all rows except the first one (header)
+        table.deleteRow(i);
+    }
+}
+
+function addPartToTable(id, name, qty) {
+    var table = document.getElementById("resultsTable");
+    var tbody = table.querySelector("tbody");
+
+    let row = tbody.insertRow();
+
+    var idCell = row.insertCell(0);
+    idCell.textContent = id;
+
+    var nameCell = row.insertCell(1);
+    nameCell.textContent = name;
+
+    var qtyCell = row.insertCell(2);
+    var qtyInput = document.createElement("input");
+    qtyInput.type = "number";
+    qtyInput.value = qty;
+    qtyInput.addEventListener("input", function(event) {
+        let urlWithQueries = "/setqty?cid=" + id + "&qty=" + event.target.value;
+        fetch(urlWithQueries, {method: "POST"})
+            .then(response => {
+                console.log(response.body);
+            })
+            .catch(error => {
+                console.log("error setting qty:", error);
+            });
+    });
+    qtyCell.appendChild(qtyInput);
+
+    var illCell = row.insertCell(3);
+    var illButton = document.createElement("button");
+    illButton.textContent = "Illuminate";
+    illButton.addEventListener("click", function() {
+        console.log("illuminating:", id);
+        let urlWithQueries = "/illuminate?cid=" + id;
+        fetch(urlWithQueries, {method: "POST"})
+    });
+    illCell.appendChild(illButton);
+
+    var delCell = row.insertCell(4);
+    var delButton = document.createElement("button");
+    delButton.textContent = "Delete";
+    delButton.addEventListener("click", function() {
+        console.log("deleting:", id);
+        let urlWithQueries = "/delete?cid=" + id;
+        fetch(urlWithQueries, {method: "POST"});
+    });
+    delCell.appendChild(delButton);
+}
