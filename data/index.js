@@ -35,7 +35,20 @@ document.getElementById("nameSearch").addEventListener("click", function() {
                 nameCell.textContent = element.name;
 
                 var qtyCell = row.insertCell(2);
-                qtyCell.textContent = element.qty;
+                var qtyInput = document.createElement("input");
+                qtyInput.type = "number";
+                qtyInput.value = element.qty;
+                qtyInput.addEventListener("input", function(event) {
+                    let urlWithQueries = "/setqty?cid=" + element.containerId + "&qty=" + event.target.value;
+                    fetch(urlWithQueries, {method: "POST"})
+                        .then(response => {
+                            console.log(response.body);
+                        })
+                        .catch(error => {
+                            console.log("error setting qty:", error);
+                        });
+                });
+                qtyCell.appendChild(qtyInput);
 
                 var illCell = row.insertCell(3);
                 var illButton = document.createElement("button");
@@ -124,7 +137,20 @@ document.getElementById("listBut").addEventListener("click", function() {
                 nameCell.textContent = element.name;
 
                 var qtyCell = row.insertCell(2);
-                qtyCell.textContent = element.qty;
+                var qtyInput = document.createElement("input");
+                qtyInput.type = "number";
+                qtyInput.value = element.qty;
+                qtyInput.addEventListener("input", function(event) {
+                    let urlWithQueries = "/setqty?cid=" + element.containerId + "&qty=" + event.target.value;
+                    fetch(urlWithQueries, {method: "POST"})
+                        .then(response => {
+                            console.log(response.body);
+                        })
+                        .catch(error => {
+                            console.log("error setting qty:", error);
+                        });
+                });
+                qtyCell.appendChild(qtyInput);
 
                 var illCell = row.insertCell(3);
                 var illButton = document.createElement("button");
@@ -142,7 +168,7 @@ document.getElementById("listBut").addEventListener("click", function() {
                 delButton.addEventListener("click", function() {
                     console.log("deleting:", element.containerId);
                     let urlWithQueries = "/delete?cid=" + element.containerId;
-                    fetch(urlWithQueries, {method: "POST"})
+                    fetch(urlWithQueries, {method: "POST"});
                 });
                 delCell.appendChild(delButton);
             });
@@ -150,4 +176,27 @@ document.getElementById("listBut").addEventListener("click", function() {
         .catch(error => {
             console.log("error listing:", error);
         });
+});
+
+document.getElementById("csvButton").addEventListener("click", function() {
+    var input = document.getElementById('csvInput');
+    if (input.files.length == 1) {
+        var file = input.files[0];
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var csvContent = event.target.result;
+            var lines = csvContent.split('\n');
+            for (var i = 1; i < lines.length; i++) {
+                var line = lines[i];
+                if (line.length > 0) {
+                    var params = line.trim().split(',');
+                    let urlWithQueries = "/add?cid=" + params[0] + "&name=" + params[1] + "&newQty=" + params[2] + "&lednum=" + params[3];
+                    fetch(urlWithQueries, {method: "POST"});
+                }
+            }
+        }
+        reader.readAsText(file);
+    } else {
+        console.log("wrong number of inputs:", input.files.length);
+    }
 });

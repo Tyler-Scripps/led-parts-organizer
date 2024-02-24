@@ -221,23 +221,31 @@ void handleAdd() {
         newName = tempStr;
     }
 
-    tempStr = server.arg("x");
-    if (tempStr.length() == 0)
+    tempStr = server.arg("cid");
+    if (tempStr.length() != 0)  //adding by lednum
     {
-        return;
-    } else {
-        newX = tempStr.toInt();
-    }
+        newContainerId = tempStr.toInt();
+        tempStr = server.arg("lednum");
+        grid.addNewPart(tempStr.toInt(), newName, newQty, newContainerId);
+    } else {    // adding ny x and y coordinate
+        tempStr = server.arg("x");
+        if (tempStr.length() == 0)
+        {
+            return;
+        } else {
+            newX = tempStr.toInt();
+        }
 
-    tempStr = server.arg("y");
-    if (tempStr.length() == 0)
-    {
-        return;
-    } else {
-        newY = tempStr.toInt();
-    }    
-    
-    grid.addNewPart(newX, newY, newName, newQty);
+        tempStr = server.arg("y");
+        if (tempStr.length() == 0)
+        {
+            return;
+        } else {
+            newY = tempStr.toInt();
+        }  
+
+        grid.addNewPart(newX, newY, newName, newQty);
+    }
     server.send(200, "text/plain", "Added part: " + newName);
     Serial.print("added: ");
     Serial.println(newName);
@@ -301,6 +309,25 @@ void handleDelete() {
     
 }
 
+void handleTestPixels() {
+    server.send(200, "text/plain", "testing pixels");
+    grid.testPixels();
+}
+
+void handleSetQty() {
+    String cidStr = server.arg("cid");
+    String qtyStr = server.arg("qty");
+
+    if (cidStr.length() == 0 || qtyStr.length() == 0)
+    {
+        server.send(400, "text/plain", "missing argument");
+        return;
+    }
+    
+    grid.setQuantity(cidStr.toInt(), qtyStr.toInt());
+    server.send(200, "text/plain", "qty set");
+}
+
 void setup(void) {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
@@ -323,6 +350,9 @@ void setup(void) {
     }
 
     WiFi.mode(WIFI_STA);
+    Serial.print("Current tx power: ");
+    Serial.println(WiFi.getTxPower());
+    WiFi.setTxPower(WIFI_POWER_8_5dBm);
     WiFi.begin(ssid, password);
     Serial.println("connecting");
 
@@ -364,6 +394,8 @@ void setup(void) {
     server.on("/illuminate", HTTP_POST, handleIlluminate);
     server.on("/alloff", HTTP_POST, handleAllOff);
     server.on("/delete", HTTP_POST, handleDelete);
+    server.on("/testpixels", HTTP_POST, handleTestPixels);
+    server.on("/setqty", HTTP_POST, handleSetQty);
 
     server.serveStatic("/", LittleFS, "/");
 

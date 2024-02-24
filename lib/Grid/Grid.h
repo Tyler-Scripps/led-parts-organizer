@@ -42,6 +42,8 @@ private:
     Adafruit_NeoPixel* pixels;
     int maxVials = -1;
     Vial* vials;
+    int width = 10;
+    int height = 10;
 
 public:
     Grid();
@@ -59,6 +61,8 @@ public:
     void allOff();
     String toCSV();
     bool deletePart(int containerId);
+    void testPixels();
+    bool setQuantity(int cid, int newQty);
 };
 
 Grid::Grid()
@@ -167,9 +171,9 @@ int Grid::XYtoLED(int x, int y) {
 
     //even or odd row
     if (y % 2 == 0) { //even
-        ledNum = (16 * (y + 1)) - x - 1;
+        ledNum = (width * (y + 1)) - x - 1;
     } else {    //odd
-        ledNum = (16 * y) + x;
+        ledNum = (width * y) + x;
     }
 
     return ledNum;
@@ -241,7 +245,7 @@ uint16_t Grid::list(Vial vialsArr[], uint16_t arrSize) {
 }
 
 void Grid::illuminate(uint16_t cid) {
-    Serial.print("illuminating: ");
+    Serial.print("illuminating container: ");
     Serial.println(cid);
     pixels->clear();
     for (uint16_t i = 0; i < maxVials; i++)
@@ -281,6 +285,30 @@ bool Grid::deletePart(int containerId) {
             vials[i].name = "";
             vials[i].qty = -1;
             vials[i].containerId = -1;
+            return true;
+        }
+    }
+    return false;
+}
+
+void Grid::testPixels() {
+    Serial.println("testing pixels");
+    for (uint16_t i = 0; i < maxVials; i++)
+    {
+        pixels->clear();
+        pixels->setPixelColor(i,pixels->Color(10,10,10));
+        pixels->show();
+        delay(250);
+    }
+    Serial.println("done testing pixels");
+}
+
+bool Grid::setQuantity(int cid, int newQty) {
+    for (uint16_t i = 0; i < maxVials; i++)
+    {
+        if (vials[i].containerId == cid)
+        {
+            vials[i].qty = newQty;
             return true;
         }
     }
