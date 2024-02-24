@@ -192,7 +192,11 @@ void handleSearch() {
         returnJSON += foundVials[i].toJson();
         returnJSON += ",";
     }
-    returnJSON.remove(returnJSON.length() - 1);
+    if (numVialsFound > 0)
+    {
+        returnJSON.remove(returnJSON.length() - 1);
+    }
+    
     returnJSON += "]}";
     server.send(200, "application/json", returnJSON);
     return;
@@ -263,7 +267,10 @@ void handleList(){
         returnJSON += foundVials[i].toJson();
         returnJSON += ",";
     }
-    returnJSON.remove(returnJSON.length() - 1);
+    if (numFound > 0)
+    {
+        returnJSON.remove(returnJSON.length() - 1);
+    }
     returnJSON += "]}";
     server.send(200, "application/json", returnJSON);
     return;
@@ -326,6 +333,25 @@ void handleSetQty() {
     
     grid.setQuantity(cidStr.toInt(), qtyStr.toInt());
     server.send(200, "text/plain", "qty set");
+}
+
+void handleMove() {
+    const String cidStr = server.arg("cid");
+    const String x = server.arg("x");
+    const String y = server.arg("y");
+    if (cidStr.length() == 0 || x.length() == 0 || y.length() == 0)
+    {
+        server.send(400, "text/plain", "missing arguemnt");
+        return;
+    }
+    bool success = grid.move(cidStr.toInt(), x.toInt(), y.toInt());
+    if (success)
+    {
+        server.send(200, "text/plain", "move successful");
+    } else {
+        server.send(400, "text/plain", "location already has container");
+    }
+    
 }
 
 void setup(void) {
@@ -396,6 +422,8 @@ void setup(void) {
     server.on("/delete", HTTP_POST, handleDelete);
     server.on("/testpixels", HTTP_POST, handleTestPixels);
     server.on("/setqty", HTTP_POST, handleSetQty);
+    server.on("/move", HTTP_POST, handleMove);
+
 
     server.serveStatic("/", LittleFS, "/");
 
