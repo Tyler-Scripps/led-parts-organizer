@@ -125,11 +125,13 @@ bool Grid::addNewPart(int x, int y, String name, int qty) {
     
     if (containerId == -1)
     {
+        Serial.println("couldn't get container id");
         return false;
     }
     
-    if (vials[XYtoLED(x, y)].containerId < 0)
+    if (vials[XYtoLED(x, y)].containerId >= 0)
     {
+        Serial.println("container already in position");
         return false;
     }
     

@@ -220,21 +220,29 @@ void handleAdd() {
     tempStr = server.arg("name");
     if (tempStr.length() == 0)
     {
+        Serial.println("missing name");
+        server.send(400, "text/plain", "missing name");
         return;
     } else {
         newName = tempStr;
     }
 
     tempStr = server.arg("cid");
+    Serial.print("cid length: ");
+    Serial.println(tempStr.length());
+    bool success = false;
     if (tempStr.length() != 0)  //adding by lednum
     {
         newContainerId = tempStr.toInt();
         tempStr = server.arg("lednum");
-        grid.addNewPart(tempStr.toInt(), newName, newQty, newContainerId);
-    } else {    // adding ny x and y coordinate
+        success = grid.addNewPart(tempStr.toInt(), newName, newQty, newContainerId);
+    } else {    // adding by x and y coordinate
+        Serial.println("adding by xy");
         tempStr = server.arg("x");
         if (tempStr.length() == 0)
         {
+            Serial.println("missing x");
+            server.send(400, "text/plain", "missing x");
             return;
         } else {
             newX = tempStr.toInt();
@@ -243,16 +251,27 @@ void handleAdd() {
         tempStr = server.arg("y");
         if (tempStr.length() == 0)
         {
+            Serial.println("missing y");
+            server.send(400, "text/plain", "missing y");
             return;
         } else {
             newY = tempStr.toInt();
         }  
 
-        grid.addNewPart(newX, newY, newName, newQty);
+        success = grid.addNewPart(newX, newY, newName, newQty);
     }
-    server.send(200, "text/plain", "Added part: " + newName);
-    Serial.print("added: ");
-    Serial.println(newName);
+    if (success)
+    {
+        server.send(200, "text/plain", "Added part: " + newName);
+        Serial.print("added: ");
+        Serial.println(newName);
+    } else {
+        server.send(400, "text/plain", "error adding part: " + newName);
+        Serial.print("error adding part: ");
+        Serial.println(newName);
+    }
+    
+    
     bool writeSuccess = writeDataFile();
 }
 
@@ -423,7 +442,6 @@ void setup(void) {
     server.on("/testpixels", HTTP_POST, handleTestPixels);
     server.on("/setqty", HTTP_POST, handleSetQty);
     server.on("/move", HTTP_POST, handleMove);
-
 
     server.serveStatic("/", LittleFS, "/");
 
